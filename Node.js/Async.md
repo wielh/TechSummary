@@ -5,11 +5,13 @@
 + 同步函數：同步函數按照它們在程式碼中的順序執行。當執行耗時任務(I/O操作或複雜計算)，它會阻礙後續程式碼的執行直到完成。
 
 + 異步函數：允許程式碼在等待某個操作完成時繼續執行其他任務。在JS裡，非同步程式設計可以透過回呼函數、Promise 和 async/await 等方式實現。
+![alt text](image.png)
 
 ## callstack 
 
 會執行所有同步函數，同步函數間以stack方式排序 (無窮迴圈會造成 MaxRange : Maximum Call Stack Size Exceeded)
- 
+![alt text](image-1.png)
+
 ## macrotask/microtask: 
 
 在事件循环模型中，有两种类型的任务队列，微任务队列中的任务优先于宏任务队列中的任务执行。
@@ -27,6 +29,7 @@
 時遇到await會暫停執行。
 
 ## Promise :
+
 JavaScript 中的 Promise 是一种用于处理异步操作的对象。Promise 对象代表一个异步操作的最终完成（或失败）及其结果值。Promise 使得异步操作的处理更加直观和简洁，避免了“回调地狱”（callback hell）的问题。
 
 + 狀態 :  待定（Pending），已完成（Fulfilled），已拒绝（Rejected）。
