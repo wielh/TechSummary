@@ -12,6 +12,26 @@
 
 + 没有继承，使用组合: Go 不支持类的继承，而是提倡通过组合来实现代码重用。通过将一个类型嵌入到另一个类型中，可以复用其方法。
 
++ golang 並非使用 public, private, ...表示封裝級別，而是用方法/變數首字母為大小寫判斷，變數命名法為駝峰法。
+
++ 如果數據庫某欄位為 name，但因為 Golang 語言特性，首字母必須為大寫，那麼struct應該這樣定義:
+
+    (json, mongodb的bson同理)
+
+```
+type message struct {
+	ID       string     `pg:"id,pk"`
+	RoomID   string     `pg:"room_id"`
+	UserID   string
+	Username string
+	Time     time.Time
+	Deleted  bool
+	Content  string
+}
+```
+
+    有些 package 會自動轉換欄位名(room_id <=> RoomID)，所以要先自己測試一下是否能找到欄位
+
 ## 關鍵字
 
 + defer: 用于推迟执行功能，直到周围的功能执行为止。
