@@ -56,13 +56,13 @@ type message struct {
 
     ```
     const (
-        A = iota        // A == 0
-        B               // B == 1
-        C               // C == 2
-        D = "hello"     // D == "hello"
-        E               // E == "hello" (與上行相同)
-        F = iota        // F == 5 (恢復 iota 的遞增，並根據行數遞增)
-        G               // G == 6
+        A = 3*iota+2        // A == 2
+        B                   // B == 5
+        C                   // C == 8
+        D = "hello"         // D == "hello"
+        E                   // E == "hello" (與上行相同)
+        F = iota            // F == 5 (恢復 iota 的遞增，並根據行數遞增)
+        G                   // G == 6
     )
     ```
 
