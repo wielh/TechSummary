@@ -22,5 +22,7 @@
 
 + MongoDB 預設是關閉ACID的，而是採用BASE模式。
 
++ MongoDB 勝在性能與擴展性，而MySQL則保證交易結果可靠與資料強一致
+
 
 

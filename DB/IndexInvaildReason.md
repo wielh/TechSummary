@@ -46,6 +46,7 @@ SELECT * FROM user WHERE name like '%-Mark' ( bad 全掃 )
    ```
 
 +  对索引隐式类型转换
+
 +  联合索引非最左匹配
 
     Note. 有一个比较特殊的查询条件：where a = 1 and c = 3 ，符合最左匹配吗？

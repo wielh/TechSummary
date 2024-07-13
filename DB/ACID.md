@@ -22,12 +22,3 @@ transaction 裡面的操作必須全部成功或全部失敗。
 
 Transection 使得一系列DB操作具有 ACID 特徵，目前 mysql 與 mongodb 皆支援 transection
 
-## BASE
-
-這是對ACID條件的放寬，是MongoDB預設模式
-
-* Basically Available（基本可用）： 系统在大部分时间内应该是可用的，但并不要求每次请求都成功。
-
-+ Soft state（软状态）： 系统状态可以有一段时间的不一致，但最终会达到一致性。
-
-+ Eventual consistency（最终一致性）： 系统在某个时间点后会达到一致性，但并不保证立即一致。

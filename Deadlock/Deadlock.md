@@ -34,7 +34,6 @@ Database transection， redis分布式鎖，程式內建的鎖皆有可能發生
 
 + 在一些允許共享資源的程式上，可不需要Mutual exclusion。 (例如readfile)
 + 程式必須一次拿走所需的全部資源或著等待。
-+ 假設有資源1~N，確保所有動作都取得資源n之前必須釋放1~(n-1)
 + 資源持有時間限時
 + 使用Banker's Algorithm
     + syntax 說明
