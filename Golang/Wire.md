@@ -56,3 +56,7 @@ func InitializeEvent() Event {
 + 建構子回傳類型的部分被 wire 稱作 provider，生成的初始化建構函示則稱為 injector
 
 + 在執行完 wire 生成 code 之後會發現 InitializeEvent 亮紅字，而且沒辦法執行程式，因為 InitializeEvent 會由於產生出來的程式碼而重複宣告，解法是在 wire.go 上加入一個註解
+
+## reference
+
++ https://go-kratos.dev/en/blog/
