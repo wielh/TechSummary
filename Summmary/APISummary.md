@@ -30,6 +30,8 @@
 
     + Config管理:  可以用文件(json,yaml,...)進行統一管理; DB密碼或證書之類的機密考慮用系統變數儲存。如果類似微服務集群那樣的各微服務IP經常變動，可以考慮使用註冊中心。
 
+    + 常見中間件: 登入驗證(token/session/oauth2)，限流，cors，crsf，logger，timeout，error handle, static, requestID
+
 + 運行效率
 
     + 多執行緒處理: 通常適合 CPU 密集型任務，或是許多類似且獨立的任務執行。

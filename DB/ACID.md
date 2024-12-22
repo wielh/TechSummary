@@ -18,7 +18,4 @@ transaction 裡面的操作必須全部成功或全部失敗。
 * Durability 持久性
 在 transaction 成功之後。就算 server 當機、斷電，已經修改的數據也不會不見，應該要被寫入能夠永久儲存的裝置中，而不是暫存。
 
-## Transection
-
-Transection 使得一系列DB操作具有 ACID 特徵，目前 mysql 與 mongodb 皆支援 transection
 
