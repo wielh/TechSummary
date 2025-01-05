@@ -26,6 +26,9 @@
         + RDB（Redis Database File）：定期将数据快照保存到磁盘。适用于不需要实时持久化的场景。
         + AOF（Append-Only File）：记录每个写操作，并将这些操作追加到文件中。可以配置为每秒、每写操作或从不同步（性能和持久性的权衡）。
 
+## 資料型態
+
+string, hash(map), list(insert order), set, zset, bitmap
 
 ## 使用場景
 
