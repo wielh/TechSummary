@@ -49,6 +49,7 @@ mockgen -source={path} -destination={path} -package={name}
 
 + 範例
 
+```
 func TestMyService(t *testing.T) {
     ctrl := gomock.NewController(t)
     defer ctrl.Finish()
@@ -76,3 +77,4 @@ func TestMyService(t *testing.T) {
         t.Errorf("unexpected result: %v", result)
     }
 }
+```

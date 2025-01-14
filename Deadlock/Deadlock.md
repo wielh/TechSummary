@@ -5,7 +5,7 @@
 
 ## 可能發生的地方
 
-Database transection， redis分布式鎖，程式內建的鎖皆有可能發生
+Database transection，redis分布式鎖，程式內建的鎖皆有可能發生
 
 ## 原因
 產生Deadlock有四個必要條件，只有滿足下面四個條件，Deadlock才可能發生，反之四個條件成立不一定會發生Deadlock。
