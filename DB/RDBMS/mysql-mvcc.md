@@ -26,9 +26,8 @@ Multiversion (version) concurrency control (MCC or MVCC) 多版本并发控制 �
 比如：
 
 ```sql
- select * from table where xxx lock in share mode，
- select * from table where xxx for update，
- update table set....
+ select * from table where xxx lock in share mode
+ select * from table where xxx for update
  insert into table (xxx,xxx) values (xxx,xxx)
  delete from table where id = xxx
 ```
