@@ -16,6 +16,7 @@ func increment() {
     mu.Unlock()
 }
 ```
+
 ## sync.RWMutex
 功能：讀寫鎖，允許多個讀操作並行執行，但寫操作是互斥的。RLock 與 Lock 都會禁止修改值
 

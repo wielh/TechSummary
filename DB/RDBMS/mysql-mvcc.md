@@ -8,8 +8,8 @@ MVCC（Multi-Version Concurrency Control，多版本並發控制）是一種用�
 
 在讲 MVCC 的实现原理之前，我觉很有必要先去了解一下 MVCC 的两种读形式。
 
-+ 快照读：读取的只是当前事务的可见版本，不用加锁。而你只要记住 简单的 select 操作就是快照读(select * from table where id = xxx)。
-+ 当前读：读取的是当前版本，比如 特殊的读操作，更新/插入/删除操作
++ 快照读：读取的只是当前事务的可见版本，简单的 select 操作就是快照读(select * from table where id = xxx)。
++ 当前读：读取的是当前版本，比如更新/插入/删除操作
 
 比如：
 
