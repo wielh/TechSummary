@@ -23,34 +23,52 @@
 
 ## 範例程式碼
 
-```
-func worker(id int, jobs <-chan int, results chan<- int) {
-	for job := range jobs {
-		fmt.Printf("Worker %d started job %d\n", id, job)
-		time.Sleep(time.Second)
-		fmt.Printf("Worker %d finished job %d\n", id, job)
-		results <- job * 2 
-	}
-}
-
-func main() {
-	jobs := make(chan int, 5)  
-	results := make(chan int, 5) 
-
-	for i := 1; i <= 3; i++ {
-		go worker(i, jobs, results)
-	}
-
-	for j := 1; j <= 5; j++ {
-		jobs <- j
-	}
-	close(jobs) 
-
-	for a := 1; a <= 5; a++ {
-		result := <-results
-		fmt.Println("Result:", result)
-	}
-}
+example1
 
 ```
+m := 200
+n := 10
+token := make(chan int, m)
+for i := 0; i < m; i++ {
+	token <- i
+}
+close(token)
 
+var wg sync.WaitGroup
+for i := 0; i < n; i++ {
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		for val := range token {
+			fmt.Printf("Hello, I am goruntine %d\n", val)
+			t := time.Duration(rand.Intn(1000)) * time.Millisecond
+			time.Sleep(t)
+		}
+	}()
+}
+wg.Wait()
+```
+
+example2 
+```
+m := 200
+n := 10
+
+var wg sync.WaitGroup
+token := make(chan (struct{}), n)
+for i := 0; i < m; i++ {
+	wg.Add(1)
+	token <- struct{}{}
+	go func(n int) {
+		defer func() {
+			wg.Done()
+			<-token
+		}()
+		fmt.Printf("Hello, I am goruntine %d\n", n)
+		t := time.Duration(rand.Intn(1000)) * time.Millisecond
+		time.Sleep(t)
+	}(i)
+}
+wg.Wait()
+close(token)
+```
