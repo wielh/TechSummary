@@ -58,6 +58,65 @@
 	fmt.Printf("List '%s' deleted successfully.\n", listKey)
 ```
 
+## hash 
+
+```
+	// --- CREATE: 新增或設置 Hash 值 ---
+	err := rdb.HSet(ctx, hashKey, map[string]interface{}{
+		"name":  "Alice",
+		"age":   30,
+		"email": "alice@example.com",
+	}).Err()
+	if err != nil {
+		log.Fatalf("HSet failed: %v", err)
+	}
+	fmt.Println("Hash created successfully")
+
+	// --- READ: 獲取 Hash 中的值 ---
+	// 獲取單個字段的值
+	name, err := rdb.HGet(ctx, hashKey, "name").Result()
+	if err != nil {
+		log.Fatalf("HGet failed: %v", err)
+	}
+	fmt.Printf("Name: %s\n", name)
+
+	// 獲取所有字段和值
+	hashData, err := rdb.HGetAll(ctx, hashKey).Result()
+	if err != nil {
+		log.Fatalf("HGetAll failed: %v", err)
+	}
+	fmt.Println("All Hash Data:", hashData)
+
+	// --- UPDATE: 修改 Hash 中的字段值 ---
+	err = rdb.HSet(ctx, hashKey, "age", 31).Err() // 更新字段
+	if err != nil {
+		log.Fatalf("HSet update failed: %v", err)
+	}
+	fmt.Println("Hash updated successfully")
+
+	// 再次讀取更新後的值
+	age, err := rdb.HGet(ctx, hashKey, "age").Result()
+	if err != nil {
+		log.Fatalf("HGet after update failed: %v", err)
+	}
+	fmt.Printf("Updated Age: %s\n", age)
+
+	// --- DELETE: 刪除 Hash 的字段或整個鍵 ---
+	// 刪除單個字段
+	err = rdb.HDel(ctx, hashKey, "email").Err()
+	if err != nil {
+		log.Fatalf("HDel failed: %v", err)
+	}
+	fmt.Println("Field 'email' deleted successfully")
+
+	// 刪除整個 Hash
+	err = rdb.Del(ctx, hashKey).Err()
+	if err != nil {
+		log.Fatalf("Del failed: %v", err)
+	}
+	fmt.Println("Hash deleted successfully")
+```
+
 ## zset
 
 ```
