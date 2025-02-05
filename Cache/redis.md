@@ -28,7 +28,7 @@
 
 ## 資料型態
 
-string, hash(map), list(insert order), set, zset, bitmap
+string, list(insert order), set, zset(sorted set), hash(map), bitmap
 
 ## 使用場景
 

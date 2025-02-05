@@ -43,8 +43,3 @@
 * 排他鎖是一種寫鎖，一旦某行數據被加上排他鎖，其他事務無法對該行進行任何操作，直到鎖被釋放。
 
 * INSERT、UPDATE 和 DELETE 操作會隱式加排他鎖，但在需要顯式鎖定時，可以使用 SELECT ... FOR UPDATE。
-
-* 對應級別:
-    + READ COMMITTED: 不對 select 到的行上鎖
-    + REPEATABLE READ: 對 select 到的行上共享鎖
-    + SERIALIZABLE: 對 select 到的行上排他鎖
