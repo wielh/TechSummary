@@ -5,6 +5,19 @@
 聯接與子查詢: JOIN，INNER JOIN，LEFT JOIN，RIGHT JOIN，UNION
 事務控制: START TRANSACTION，COMMIT，ROLLBACK，SAVEPOINT，RELEASE SAVEPOINT
 
+## 特殊查詢
+
++ column1 存在
+```
+db.test.find({ column1: { $exist: true} })
+```
+
++ column1 是數字
+```
+db.test.find({ "ccc":{$type:"number"}})
+```
+以上會返回數字與陣列中包含數字的document
+
 ## 查詢範例
 + select 特定欄位
   ```
