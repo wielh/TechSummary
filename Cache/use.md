@@ -117,8 +117,13 @@
 	fmt.Println("Hash deleted successfully")
 ```
 
-## zset
-
+## zset 操作
++ 創建 ZSet（CREATE）：使用 ZAdd 方法向有序集合添加多個元素。每個元素由 Score（排序分數）和 Member（成員值）組成。
++ 讀取 ZSet（READ）：使用 ZRangeWithScores 獲取有序集合的所有成員及其分數。0, -1 表示從頭到尾獲取整個集合。
++ 更新 ZSet（UPDATE）：使用 ZIncrBy 方法增加某個元素的分數。如果成員不存在，ZIncrBy 會自動創建該成員。
++ 刪除 ZSet 元素（DELETE - 部分）：使用 ZRem 方法移除指定成員。
++ 刪除整個 ZSet（DELETE - 全部）：使用 Del 方法刪除整個有序集合。
++ 範例
 ```
 // ====== CREATE ======
 	// 添加有序集合元素
@@ -178,9 +183,5 @@
 	fmt.Printf("ZSet '%s' deleted successfully.\n", zsetKey)
 ```
 
-+ 創建 ZSet（CREATE）：使用 ZAdd 方法向有序集合添加多個元素。每個元素由 Score（排序分數）和 Member（成員值）組成。
-+ 讀取 ZSet（READ）：使用 ZRangeWithScores 獲取有序集合的所有成員及其分數。0, -1 表示從頭到尾獲取整個集合。
-+ 更新 ZSet（UPDATE）：使用 ZIncrBy 方法增加某個元素的分數。如果成員不存在，ZIncrBy 會自動創建該成員。
-+ 刪除 ZSet 元素（DELETE - 部分）：使用 ZRem 方法移除指定成員。
-+ 刪除整個 ZSet（DELETE - 全部）：使用 Del 方法刪除整個有序集合。
+
 
