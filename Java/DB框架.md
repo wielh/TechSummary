@@ -19,6 +19,12 @@ JPA 是 Java 提供的標準持久化 API，用於簡化 Java 應用程式中的
 + 基於對象關聯映射（ORM）的思想，將資料庫表映射成 Java 類，並將資料庫中的記錄映射成 Java 對象。
 + 提供了標準化的 API，開發者不需要關心具體的資料庫操作細節。
 + 可以與多種不同的 JPA 實現（如 Hibernate、EclipseLink、OpenJPA 等）一起使用。
++ 複雜 SQL 可能仍需自訂，以下是範例 :
+
+    ```
+    @Query("SELECT new com.example.dto.UserOrderSummary(u.id, u.name, SUM(o.amount)) FROM User u JOIN u.orders o GROUP BY u.id, u.name")
+    List<UserOrderSummary> findUserOrderSummaries();
+    ```
 
 ## Hibernate
 Hibernate 是一個流行的開源框架，實現了 JPA 介面，並提供了豐富的功能來處理對象關聯映射（ORM）。它是 JPA 的一種實現，並且可以與 JPA 一起使用，但 Hibernate 提供了比 JPA 更多的功能和擴展。
@@ -33,3 +39,4 @@ JPA 和 Hibernate 的比較：
 JPA 是一個規範，而 Hibernate 是 JPA 的一個實現。JPA 定義了如何進行對象關聯映射（ORM）操作，而 Hibernate 提供了一些更高級的功能來支持 JPA。
 JPA 提供了對應的接口和抽象，開發者通常不需要關心底層的 ORM 實現（如 Hibernate），只需關注 JPA 提供的標準 API。
 Hibernate 除了支持 JPA 規範外，還提供了額外的功能，比如查詢語言 HQL、更高效的緩存機制等。如果你需要這些額外功能，可以直接使用 Hibernate。
+
