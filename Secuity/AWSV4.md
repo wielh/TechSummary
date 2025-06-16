@@ -40,6 +40,10 @@ AWS4-HMAC-SHA256 Credential=ACCESS_KEY_ID/DATE/REGION/SERVICE/aws4_request, Sign
 
 + 請求發送至伺服器： 客戶端將已簽名的請求發送到 AWS 服務。請求中通常包括：Authorization, X-Amz-Date, X-Amz-Content-Sha256
 
+## 與傳統的帳號密碼登入比較
+
++ AWSV4 不是傳送密碼登入，而是用密鑰對登入訊息進行簽名。所以能更有效防止中間人攻擊。
++ 因為 hash 需要用到 method, header, body 等資料。所以一旦請求被竄改，就會導致請求不通過。 
 
 ## reference
 
