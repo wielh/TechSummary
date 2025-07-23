@@ -16,6 +16,7 @@
 +  基於結構的分塊（Structure-Aware Chunking）: 根據段落、標題、章節、HTML 元素等自然結構進行分塊
 +  基於分隔符的遞迴分塊（Recursive Character Splitter）: 使用多層級分隔符（如段落、句子、空格）遞迴切割直到符合限制	
 +  語義分塊（Semantic Chunking）: embedding 後相似的內容合併再一起。
++  llm 分塊: 請 llm 幫助我們分塊。
 
 ## RAG 策略
 + simple-RAG: 根據問句與提交從vector_db搜尋而來的前k個結果給llm評判並生成結果。
