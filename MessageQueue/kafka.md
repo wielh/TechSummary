@@ -1,24 +1,43 @@
-# kafka 原理
+# kafka  特點介紹
 
-## 簡介
-Kafka是一種分散式，基於pub/sub模式的消息隊列 (Message Queue)。
+## 高吞吐量
 
-## 名詞解釋
++ 原因 (zero-copy): zero Copy（零拷貝） 是一種 提升資料傳輸效率 的技術，主要用於資料從磁碟或網路搬運到用戶空間（User Space）或傳送到其他裝置的過程中，避免資料在核心空間與使用者空間間的重複拷貝
 
-+ Producer： 生产者，发送消息的一方。生产者负责创建消息，然后将其发送到 Kafka。
++ 核心空間: OS 內部運作的區域，具有最高權限。控制硬體（磁碟、網卡、記憶體等）與資源調度, 並提供系統呼叫（System Call）給使用者空間使用。
 
-+ Consumer： 消费者，接受消息的一方。消费者连接到 Kafka 上并接收消息，进而进行相应的业务逻辑处理。
++ 使用者空間: 運行一般應用程式（如 Nginx、MySQL、VSCode）。權限受限，不能直接存取硬體或記憶體位址。 只能透過系統呼叫向 kernel 請求服務。
 
-+ Consumer Group： 一个消费者组可以包含一个或多个消费者。使用多分区 + 多消费者方式可以极大提高数据下游的处理速度，同一消费组中的消费者不会重复消费消息，同样的，不同消费组中的消费者消息消息时互不影响。
++ 以從磁碟讀取資料並透過網路送出為例，傳統資料流如下：
+    + 磁碟 → OS 核心空間
+    + 核心空間 → 使用者空間（read）
+    + 使用者空間 → 核心空間（write）
+    + 核心空間 → 網路卡（NIC）
 
-+ Record： 实际写入 Kafka 中并可以被读取的消息记录。每个 record 包含了 key、value 和 timestamp。
++ 以 linux 為例，linux 是使用 sendfile() 直接傳輸資料，不用將資料複製至使用者空間
 
-+ Offset： offset 是消息在分区中的唯一标识，Kafka 通过它来保证消息在分区内的顺序性，不过 offset 并不跨越分区，也就是说，Kafka 保证的是分区有序性而不是主题有序性。
+## 支持 Exactly Once Semantics 
 
-+ Broker： 服务代理节点。Broker 是 Kafka 的服务节点，即 Kafka 的服务器。
++ Kafka 0.11+ 預設支援 EOS，只需設定 enable.idempotence=true。kafka 為每個 producer 指派一個 PID（producer ID），每條訊息會帶有 序列號（sequence number），Broker 會記住最後成功的序列號，忽略重複訊息（即使重試）
 
-+ Topic： Kafka 中的消息以 Topic 为单位进行划分，生产者将消息发送到特定的 Topic，而消费者负责订阅 Topic 的消息并进行消费。
+## Transactional Producer（事務性 Producer）
 
-+ Partition： Topic 是一个逻辑的概念，它可以细分为多个分区，每个分区只属于单个主题。同一个主题下不同分区包含的消息是不同的，分区在存储层面可以看作一个可追加的日志(Log)文件，消息在被追加到分区日志文件的时候都会分配一个特定的偏移量(offset)。
++ Kafka 支援將多條消息包成一個原子事務提交，以 go 語言為例: 
 
-+ Replication： 副本，是 Kafka 保证数据高可用的方式，Kafka 同一 Partition 的数据可以在多 Broker 上存在多个副本，通常只有主副本对外提供读写服务，当主副本所在 broker 崩溃或发生网络异常，Kafka 会在 Controller 的管理下会重新选择新的 Leader 副本对外提供读写服务。
+    ```
+    producer.initTransactions()
+    producer.beginTransaction()
+
+    producer.send(record1)
+    producer.send(record2)
+
+    producer.commitTransaction()
+    ```
+
+## Partition 層級順序
+
++ kafka 的消息是在 Partition 遵循 FIFO 的
+
+## kafka 的限制
+
++ 原生的kafka不支持延遲消息與重試機制 
