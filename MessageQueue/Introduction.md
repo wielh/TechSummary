@@ -26,6 +26,20 @@
 
 + 削峰填谷：訊息佇列可以在高峰期緩衝大量要求，平滑流量，避免系統過載。
 
+## messeage queue 選擇或是調整因素
+
++ 吞吐量
+
++ 訊息處理機制: at-most-once / at-least-once / exactly-once
+
++ 重試與死信
+
++ 順序需求		
+
++ 延遲消息	
+
++ transection 
+
 ## 常見的 Message Queue 比較
 | 特性   | Kafka         | RabbitMQ        | RocketMQ          |
 | ---- | ------------- | --------------- | ----------------- |

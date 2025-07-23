@@ -27,3 +27,7 @@
 ## 支持延遲消息
 
 + rocketMQ 支持消息可以過去指定時間後再取用。
+
+##  原生事務訊息支持	
+
++ 支援「prepare → commit/rollback」，適合與 DB 搭配使用
