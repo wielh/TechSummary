@@ -97,7 +97,7 @@ CREATE INDEX idx_users_data_path ON users USING GIN (data jsonb_path_ops);
 
 ---
 
-## 7. 設計建議：一般欄位 vs. JSONB
+## 6. 設計建議：一般欄位 vs. JSONB
 
 雖然 `jsonb` 非常強大，但並不代表應該將所有資料都塞進去。以下是設計時的建議判斷基準：
 
