@@ -8,7 +8,7 @@
 
 ## 為何要這樣做
 
-```
+```go
 type function interface {
     f(x int)int
     g(x int)int
@@ -35,21 +35,20 @@ func calculate(x int) {
 
 + 安裝：
 
-```
+```bash
 go install github.com/golang/mock/mockgen@latest
 
 ```
 
-+ 生成 mock 文件: 
++ 生成 mock 文件
 
-```
+```bash
 mockgen -source={path} -destination={path} -package={name}
-
 ```
 
 + 範例
 
-```
+```go
 func TestMyService(t *testing.T) {
     ctrl := gomock.NewController(t)
     defer ctrl.Finish()

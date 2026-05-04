@@ -35,6 +35,7 @@ git rebase -i HEAD~3
 ```
 
 常見關鍵字：
+
 - `pick`: 保留該 commit。
 - `reword`: 修改 commit 訊息。
 - `squash`: 將該 commit 合併到前一個。
