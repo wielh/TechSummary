@@ -11,6 +11,7 @@
 ```bash
 go test ./...
 ```
+
 ---
 
 ## 2. 常用參數 (Flags) 詳細說明
@@ -26,6 +27,7 @@ go test ./...
 | **`-parallel`** | **並行測試數**。限制單一 package 內 `t.Parallel()` 的數量。 | 控制單機測試時的資源消耗。                   |
 | **`-short`**    | **短測試模式**。配合 `testing.Short()` 跳過耗時測試。       | 本地開發想快速驗證邏輯時。                   |
 | **`-tags`**     | **編譯標籤**。只編譯與執行帶有特定標籤的檔案。              | 區分 `unit`, `integration`, `e2e` 測試環境。 |
+| **`-gcflags`**  | **編譯器參數**。傳遞參數給編譯器（如禁用內聯）。            | 進行 Monkey Patch 測試時必開。               |
 
 ### 覆蓋率相關參數
 
@@ -56,4 +58,44 @@ grep -vE "/mock/|/cmd/" .coverage.tmp.txt > .coverage.txt
 go tool cover -func=.coverage.txt
 ```
 
+### C. 禁用內聯與 Monkey Patch
+
+在使用像 `monkey` 這種透過修改函式指標（Function Pointer）來替換邏輯的套件時，必須禁用編譯器的 **內聯優化 (Inlining)**。
+
+* **原因**：如果函式被編譯器直接嵌入 (Inlined) 到呼叫端，修改原函式的入口點將無法影響已嵌入的程式碼，導致 Hook 失效。
+* **常用參數**：
+  * `-gcflags="all=-l"`：禁用內聯 (Lowercase L)。
+  * `-gcflags="all=-N -l"`：禁用優化 (`-N`) 與內聯 (`-l`)，這是最保險且最常用的偵錯/測試配置。
+* **指令範例**：
+  
+  ```bash
+    go test -gcflags="all=-l" ./...
+  ```
+
 ---
+
+## 4. 附錄：常用 -gcflags 選項
+
+`-gcflags` 用於將參數傳遞給 Go 編譯器 (`go tool compile`)。
+
+| 選項        | 作用                     | 說明                                             |
+| :---------- | :----------------------- | :----------------------------------------------- |
+| **`-l`**    | 禁用內聯 (Inlining)      | **Monkey Patch 必備**。防止函式被嵌入呼叫端。    |
+| **`-N`**    | 禁用優化 (Optimizations) | 使偵錯時的變數值與程式碼行號精確對應。           |
+| **`-m`**    | 輸出優化決策             | 顯示 **逃逸分析 (Escape Analysis)** 與內聯決策。 |
+| **`-m -m`** | 更詳細的優化決策         | 顯示編譯器推導的詳細過程。                       |
+| **`-S`**    | 輸出組合語言             | 查看編譯後的機器碼對應。                         |
+
+### 指令範例
+
+* **徹底禁用優化進行測試**：
+  
+  ```bash
+  go test -gcflags="all=-N -l" ./...
+  ```
+
+* **分析變數是否逃逸到堆積 (Heap)**：
+
+  ```bash
+  go build -gcflags="-m" .
+  ```
