@@ -1,6 +1,6 @@
 # google/wire
 
-## 作用: 
+## 作用
 
 在系統日漸壯大的情況下，手動撰寫依賴注入(DI)的成本會越來越高，需要建立的實例越來越多。wire 讓我們更方便管理依賴。
 
@@ -30,7 +30,7 @@ func main() {
 
 + 使用 wire
 
-```
+```go
 // wire.go
 
 func InitializeEvent() Event {
@@ -39,7 +39,7 @@ func InitializeEvent() Event {
 }
 ```
 
-```
+```go
 // 在目錄下執行指令 wire 或是 wire gen，接著會生成檔案 wire_gen.go
 func InitializeEvent() Event {
     message := NewMessage()
