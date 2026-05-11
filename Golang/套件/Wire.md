@@ -8,7 +8,7 @@
 
 + 手動注入
 
-```
+```go
 func NewMessage() Message {
     return Message("Hi there!")
 }
