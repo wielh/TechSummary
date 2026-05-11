@@ -118,7 +118,30 @@ CROSS JOIN LATERAL (
 
 ---
 
-## 5. 總結
+## 5. 什麼時候該用哪一種？ (When to use which?)
+
+| 需求場景 | 推薦選用 | 理由 |
+| :--- | :--- | :--- |
+| **簡單的資料表關聯 (1:1 或 1:N)** | **一般 JOIN** | 語法標準且效能優化最成熟。 |
+| **取得分組中的前 N 筆資料 (Top-N per group)** | **LATERAL JOIN** | 語法最直覺（可直接在子查詢用 `LIMIT`），且通常比 Window Function 更快。 |
+| **需要展開 JSON 或 陣列 (SRF)** | **LATERAL JOIN** | PostgreSQL 處理 `unnest` 或 `jsonb_array_elements` 的標準做法。 |
+| **重複使用複雜的計算結果** | **LATERAL JOIN** | 可以在 LATERAL 中定義別名，避免在 `SELECT` 或 `WHERE` 中重複寫長長的公式。 |
+| **大數據量的簡單連接** | **一般 JOIN** | 查詢優化器（Optimizer）能更好地使用 Hash Join 或 Merge Join 策略。 |
+| **子查詢必須依賴左表數值** | **LATERAL JOIN** | 一般 JOIN 無法達成，這是 LATERAL 的唯一解。 |
+
+### 選用指南總結：
+
+1.  **優先考慮 一般 JOIN**：如果只是單純的 `table A` 串 `table B`，使用 `INNER JOIN` 或 `LEFT JOIN` 是最快且最標準的。
+2.  **遇到「每一列都要各做一次...」的需求時選 LATERAL**：
+    *   例如：「針對每個用戶，找出他最新的 3 筆訂單」。
+    *   例如：「針對每一列，將其 JSON 欄位展開成多行」。
+3.  **效能考量**：
+    *   雖然 `LATERAL` 在邏輯上像迴圈，但 PostgreSQL 的優化器（Optimizer）非常聰明，有時會將其轉化為更高效的 Nested Loop Join。
+    *   如果子查詢非常複雜且左表資料量極大，建議透過 `EXPLAIN ANALYZE` 比較一下 `LATERAL` 與 `Window Function` (如 `ROW_NUMBER()`) 的效能差異。
+
+---
+
+## 6. 總結
 
 * **關鍵字**：`for-each`。
 * **何時使用**：當你的子查詢需要用到「前一張表」的欄位值時。
