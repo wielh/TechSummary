@@ -30,10 +30,68 @@
 
 ## 捕捉 panic 範例
 
-```
+```go
 defer func() {
     if r := recover(); r != nil {
         fmt.Println("Recovered from panic:", r)
     }
 }()
+```
+
+## 跨 Goroutine 捕獲失效
+
+`recover` 只能捕獲**當前 Goroutine** 發生的 panic，無法跨 Goroutine 捕獲。如果在 `main` goroutine 中註冊了 `recover`，而子 goroutine 發生 panic，程式依然會直接崩潰。
+
+### ❌ 錯誤範例 (會導致程式崩潰)
+
+```go
+package main
+
+import (
+    "fmt"
+    "time"
+)
+
+func main() {
+    // 這裡的 recover 無法捕獲子 goroutine 的 panic
+    defer func() {
+        if r := recover(); r != nil {
+            fmt.Println("Recovered in main:", r)
+        }
+    }()
+
+    go func() {
+        panic("panic in goroutine") // 程式依然會崩潰！
+    }()
+
+    time.Sleep(1 * time.Second)
+}
+```
+
+###  正確做法
+
+必須在**每一個子 Goroutine 內部**獨立註冊 `recover`：
+
+```go
+package main
+
+import (
+    "fmt"
+    "time"
+)
+
+func main() {
+    go func() {
+        // 在子 goroutine 內部進行捕獲
+        defer func() {
+            if r := recover(); r != nil {
+                fmt.Println("Recovered in goroutine:", r)
+            }
+        }()
+        
+        panic("panic in goroutine") // 被成功捕獲，程式不會崩潰
+    }()
+
+    time.Sleep(1 * time.Second)
+}
 ```
