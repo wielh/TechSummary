@@ -1,187 +1,220 @@
-# 如何使用 redis (golang為例子)
+# 如何使用 Redis (Go 語言範例)
 
-## list 
+本篇文件提供基於官方推薦的 Go 用戶端 **`go-redis/v9`** 對 Redis 主要資料型態進行操作的程式碼範例。
 
+---
+
+## 1. 初始化連接
+
+首先，確保安裝了最新版的 `go-redis` 套件：
+```bash
+go get github.com/redis/go-redis/v9
 ```
-    // ====== CREATE ======
-	// 在列表右側推入多個值
-	err = rdb.RPush(ctx, listKey, "item1", "item2", "item3").Err()
-	if err != nil {
-		log.Fatalf("Failed to push values to list: %v", err)
-	}
-	fmt.Printf("List '%s' created with values: item1, item2, item3\n", listKey)
 
-	// ====== READ ======
-	// 獲取列表中所有元素
+在 Go 中初始化 `redis.Client` 的範例：
+
+```go
+package main
+
+import (
+	"context"
+	"fmt"
+	"log"
+	"time"
+
+	"github.com/redis/go-redis/v9"
+)
+
+var ctx = context.Background()
+
+func initClient() *redis.Client {
+	rdb := redis.NewClient(&redis.Options{
+		Addr:     "localhost:6379",
+		Password: "", // 若無密碼則留空
+		DB:       0,  // 使用預設的 DB 0
+	})
+
+	// 透過 Ping 測試連接是否正常
+	_, err := rdb.Ping(ctx).Result()
+	if err != nil {
+		log.Fatalf("無法連接至 Redis: %v", err)
+	}
+	return rdb
+}
+```
+
+---
+
+## 2. String (字串) 操作
+
+String 是最基礎且常用的型態，適用於快取、計數器與分散式鎖。
+
+```go
+func stringExample(rdb *redis.Client) {
+	key := "user:100:name"
+
+	// ====== SET (寫入) ======
+	// 設定過期時間為 10 分鐘
+	err := rdb.Set(ctx, key, "Bob", 10*time.Minute).Err()
+	if err != nil {
+		log.Fatalf("Set 失敗: %v", err)
+	}
+
+	// ====== GET (讀取) ======
+	val, err := rdb.Get(ctx, key).Result()
+	if err == redis.Nil {
+		fmt.Println("Key 不存在")
+	} else if err != nil {
+		log.Fatalf("Get 失敗: %v", err)
+	} else {
+		fmt.Printf("取得 user 100 名稱: %s\n", val)
+	}
+
+	// ====== INCR / DECR (原子計數器) ======
+	counterKey := "page:views"
+	// 每次呼叫 +1
+	newVal, err := rdb.Incr(ctx, counterKey).Result()
+	if err != nil {
+		log.Fatalf("Incr 失敗: %v", err)
+	}
+	fmt.Printf("目前頁面瀏覽次數: %d\n", newVal)
+}
+```
+
+---
+
+## 3. List (列表) 操作
+
+List 是雙向鏈結串列，常用於簡單的佇列或最新事件紀錄。
+
+```go
+func listExample(rdb *redis.Client) {
+	listKey := "tasks:queue"
+
+	// ====== PUSH (從右側推入資料) ======
+	err := rdb.RPush(ctx, listKey, "task1", "task2", "task3").Err()
+	if err != nil {
+		log.Fatalf("RPush 失敗: %v", err)
+	}
+
+	// ====== RANGE (獲取區間內所有元素) ======
+	// 0 到 -1 代表獲取全部
 	values, err := rdb.LRange(ctx, listKey, 0, -1).Result()
 	if err != nil {
-		log.Fatalf("Failed to read list: %v", err)
+		log.Fatalf("LRange 失敗: %v", err)
 	}
-	fmt.Printf("Values in list '%s': %v\n", listKey, values)
+	fmt.Printf("當前佇列內的所有任務: %v\n", values)
 
-	// ====== UPDATE ======
-	// 更新列表中特定索引的值
-	err = rdb.LSet(ctx, listKey, 1, "updated_item2").Err()
+	// ====== POP (從左側彈出並處理任務) ======
+	task, err := rdb.LPop(ctx, listKey).Result()
 	if err != nil {
-		log.Fatalf("Failed to update value in list: %v", err)
+		log.Fatalf("LPop 失敗: %v", err)
 	}
-	fmt.Printf("Updated index 1 in list '%s' to 'updated_item2'\n", listKey)
+	fmt.Printf("處理彈出任務: %s\n", task)
 
-	// 再次獲取更新後的列表
-	updatedValues, err := rdb.LRange(ctx, listKey, 0, -1).Result()
-	if err != nil {
-		log.Fatalf("Failed to read updated list: %v", err)
-	}
-	fmt.Printf("Updated values in list '%s': %v\n", listKey, updatedValues)
-
-	// ====== DELETE ======
-	// 從列表中移除特定值
-	removedCount, err := rdb.LRem(ctx, listKey, 1, "item1").Result()
-	if err != nil {
-		log.Fatalf("Failed to remove value from list: %v", err)
-	}
-	fmt.Printf("Removed %d occurrence(s) of 'item1' from list '%s'\n", removedCount, listKey)
-
-	// 獲取刪除後的列表
-	finalValues, err := rdb.LRange(ctx, listKey, 0, -1).Result()
-	if err != nil {
-		log.Fatalf("Failed to read final list: %v", err)
-	}
-	fmt.Printf("Final values in list '%s': %v\n", listKey, finalValues)
-
-	// ====== DELETE LIST ======
-	// 刪除整個列表
-	err = rdb.Del(ctx, listKey).Err()
-	if err != nil {
-		log.Fatalf("Failed to delete list: %v", err)
-	}
-	fmt.Printf("List '%s' deleted successfully.\n", listKey)
+	// 清理 Key
+	rdb.Del(ctx, listKey)
+}
 ```
 
-## hash 
+---
 
-```
-	// --- CREATE: 新增或設置 Hash 值 ---
+## 4. Hash (哈希) 操作
+
+Hash 特別適合儲存結構化物件（如 User Profile），可以針對單一欄位進行更新而不用重寫整個物件。
+
+```go
+func hashExample(rdb *redis.Client) {
+	hashKey := "user:100:profile"
+
+	// ====== HSET (寫入多個鍵值對) ======
 	err := rdb.HSet(ctx, hashKey, map[string]interface{}{
 		"name":  "Alice",
 		"age":   30,
 		"email": "alice@example.com",
 	}).Err()
 	if err != nil {
-		log.Fatalf("HSet failed: %v", err)
+		log.Fatalf("HSet 失敗: %v", err)
 	}
-	fmt.Println("Hash created successfully")
 
-	// --- READ: 獲取 Hash 中的值 ---
-	// 獲取單個字段的值
+	// ====== HGET (獲取單一欄位) ======
 	name, err := rdb.HGet(ctx, hashKey, "name").Result()
 	if err != nil {
-		log.Fatalf("HGet failed: %v", err)
+		log.Fatalf("HGet 失敗: %v", err)
 	}
-	fmt.Printf("Name: %s\n", name)
+	fmt.Printf("姓名: %s\n", name)
 
-	// 獲取所有字段和值
-	hashData, err := rdb.HGetAll(ctx, hashKey).Result()
+	// ====== HGETALL (獲取全部物件資料) ======
+	profile, err := rdb.HGetAll(ctx, hashKey).Result()
 	if err != nil {
-		log.Fatalf("HGetAll failed: %v", err)
+		log.Fatalf("HGetAll 失敗: %v", err)
 	}
-	fmt.Println("All Hash Data:", hashData)
+	fmt.Println("完整用戶資料:", profile)
 
-	// --- UPDATE: 修改 Hash 中的字段值 ---
-	err = rdb.HSet(ctx, hashKey, "age", 31).Err() // 更新字段
-	if err != nil {
-		log.Fatalf("HSet update failed: %v", err)
-	}
-	fmt.Println("Hash updated successfully")
-
-	// 再次讀取更新後的值
-	age, err := rdb.HGet(ctx, hashKey, "age").Result()
-	if err != nil {
-		log.Fatalf("HGet after update failed: %v", err)
-	}
-	fmt.Printf("Updated Age: %s\n", age)
-
-	// --- DELETE: 刪除 Hash 的字段或整個鍵 ---
-	// 刪除單個字段
+	// ====== HDEL (刪除特定欄位) ======
 	err = rdb.HDel(ctx, hashKey, "email").Err()
 	if err != nil {
-		log.Fatalf("HDel failed: %v", err)
+		log.Fatalf("HDel 失敗: %v", err)
 	}
-	fmt.Println("Field 'email' deleted successfully")
 
-	// 刪除整個 Hash
-	err = rdb.Del(ctx, hashKey).Err()
-	if err != nil {
-		log.Fatalf("Del failed: %v", err)
-	}
-	fmt.Println("Hash deleted successfully")
+	// 清理整個 Key
+	rdb.Del(ctx, hashKey)
+}
 ```
 
-## zset 操作
-+ 創建 ZSet（CREATE）：使用 ZAdd 方法向有序集合添加多個元素。每個元素由 Score（排序分數）和 Member（成員值）組成。
-+ 讀取 ZSet（READ）：使用 ZRangeWithScores 獲取有序集合的所有成員及其分數。0, -1 表示從頭到尾獲取整個集合。
-+ 更新 ZSet（UPDATE）：使用 ZIncrBy 方法增加某個元素的分數。如果成員不存在，ZIncrBy 會自動創建該成員。
-+ 刪除 ZSet 元素（DELETE - 部分）：使用 ZRem 方法移除指定成員。
-+ 刪除整個 ZSet（DELETE - 全部）：使用 Del 方法刪除整個有序集合。
-+ 範例
-```
-// ====== CREATE ======
-	// 添加有序集合元素
-	members := []*redis.Z{
-		{Score: 1.0, Member: "item1"},
-		{Score: 2.0, Member: "item2"},
-		{Score: 3.0, Member: "item3"},
-	}
-	count, err := rdb.ZAdd(ctx, zsetKey, members...).Result()
-	if err != nil {
-		log.Fatalf("Failed to add elements to ZSet: %v", err)
-	}
-	fmt.Printf("Added %d elements to ZSet '%s'\n", count, zsetKey)
+---
 
-	// ====== READ ======
-	// 獲取有序集合中的元素
+## 5. ZSet (有序集合) 操作
+
+ZSet 中的每個元素都有一個 Score（排序分數），Redis 會自動根據 Score 進行升序或降序排列，極為適合排行榜。
+
+```go
+func zsetExample(rdb *redis.Client) {
+	zsetKey := "leaderboard"
+
+	// ====== ZADD (添加有分數的成員) ======
+	err := rdb.ZAdd(ctx, zsetKey, redis.Z{
+		Score:  1500.0,
+		Member: "PlayerA",
+	}, redis.Z{
+		Score:  2300.0,
+		Member: "PlayerB",
+	}, redis.Z{
+		Score:  1800.0,
+		Member: "PlayerC",
+	}).Err()
+	if err != nil {
+		log.Fatalf("ZAdd 失敗: %v", err)
+	}
+
+	// ====== ZRANGE (依照分數從小到大讀取) ======
 	values, err := rdb.ZRangeWithScores(ctx, zsetKey, 0, -1).Result()
 	if err != nil {
-		log.Fatalf("Failed to read elements from ZSet: %v", err)
+		log.Fatalf("ZRange 失敗: %v", err)
 	}
-	fmt.Printf("Elements in ZSet '%s':\n", zsetKey)
+	fmt.Println("排行榜 (從低到高):")
 	for _, val := range values {
-		fmt.Printf("  Member: %s, Score: %.1f\n", val.Member, val.Score)
+		fmt.Printf("  玩家: %v, 積分: %.1f\n", val.Member, val.Score)
 	}
 
-	// ====== UPDATE ======
-	// 更新某個元素的分數
-	newScore, err := rdb.ZIncrBy(ctx, zsetKey, 5.0, "item1").Result()
+	// ====== ZREVRANGE (依照分數從大到小讀取 - 常用於排行榜前幾名) ======
+	topPlayers, err := rdb.ZRevRangeWithScores(ctx, zsetKey, 0, 1).Result() // 拿前兩名
 	if err != nil {
-		log.Fatalf("Failed to update score in ZSet: %v", err)
+		log.Fatalf("ZRevRange 失敗: %v", err)
 	}
-	fmt.Printf("Updated 'item1' score to %.1f\n", newScore)
-
-	// 再次讀取更新後的元素
-	updatedValues, err := rdb.ZRangeWithScores(ctx, zsetKey, 0, -1).Result()
-	if err != nil {
-		log.Fatalf("Failed to read updated elements from ZSet: %v", err)
-	}
-	fmt.Printf("Updated elements in ZSet '%s':\n", zsetKey)
-	for _, val := range updatedValues {
-		fmt.Printf("  Member: %s, Score: %.1f\n", val.Member, val.Score)
+	fmt.Println("前兩名高分玩家:")
+	for _, val := range topPlayers {
+		fmt.Printf("  玩家: %v, 積分: %.1f\n", val.Member, val.Score)
 	}
 
-	// ====== DELETE ======
-	// 刪除某個元素
-	removed, err := rdb.ZRem(ctx, zsetKey, "item2").Result()
+	// ====== ZINCRBY (為特定成員增加分數) ======
+	newScore, err := rdb.ZIncrBy(ctx, zsetKey, 500.0, "PlayerA").Result()
 	if err != nil {
-		log.Fatalf("Failed to remove element from ZSet: %v", err)
+		log.Fatalf("ZIncrBy 失敗: %v", err)
 	}
-	fmt.Printf("Removed %d element(s) from ZSet '%s'\n", removed, zsetKey)
+	fmt.Printf("PlayerA 贏得比賽，新積分: %.1f\n", newScore)
 
-	// 刪除整個有序集合
-	err = rdb.Del(ctx, zsetKey).Err()
-	if err != nil {
-		log.Fatalf("Failed to delete ZSet: %v", err)
-	}
-	fmt.Printf("ZSet '%s' deleted successfully.\n", zsetKey)
+	// 清理整個 Key
+	rdb.Del(ctx, zsetKey)
+}
 ```
-
-
-
