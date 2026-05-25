@@ -7,16 +7,13 @@ go, protoc, protoc-gen-go, make
 ## structure
 
 + internal 架構
-
-    + service: proto 接口的實現
-
-    + biz: 定義 repo 這個 interface，service 藉由 biz 定義的函數取得資料
-
-    + data: 負責DB的資料查詢，且實現 biz 所定義的 repo interface
+  + service: proto 接口的實現
+  + biz: 定義 repo 這個 interface，service 藉由 biz 定義的函數取得資料
+  + data: 負責DB的資料查詢，且實現 biz 所定義的 repo interface
 
 + 總覽
 
-```
+```text
 ├── Dockerfile  
 ├── LICENSE
 ├── Makefile  
@@ -80,7 +77,7 @@ go, protoc, protoc-gen-go, make
 
 + 新增專案
 
-```
+```bash
 kratos new <project-name>
 cd <project-name>
 make init
@@ -90,17 +87,19 @@ go get github.com/google/wire/cmd/wire@latest
 + 編寫 proto 檔案
 
 + 生成 gRPC 代码
-```
+
+```bash
 protoc -I . -I ./third_party --go_out=. --go-grpc_out=. --go-http_out=. {grpc path}
 ```
 
-```
+```bash
 # 生成所有proto源码、wire等等
 go generate ./...
 ```
 
 + 实现服务 (在 internal/service/(...).go)
-```
+  
+```bash
 cd server
 
 # Add a proto template
